@@ -229,31 +229,49 @@ Base URL: `http://127.0.0.1:8000/api/`
 - Role-based access control
 - Form validation
 
-## 🚀 Production Deployment Checklist
+## 🚀 Production Deployment
 
-Before deploying to production:
+CuraLink is **production-ready** with deployment configuration for:
+- **Render** (Recommended - Free tier available)
+- **Railway** (Auto-deploy with PostgreSQL)
+- **Heroku** (Classic deployment)
+- **PythonAnywhere** (Manual setup)
 
-1. **Security Settings**:
-   - Change `SECRET_KEY` in `settings.py`
-   - Set `DEBUG = False`
-   - Update `ALLOWED_HOSTS`
-   - Configure HTTPS
+### Quick Deploy to Render (5 minutes)
 
-2. **Database**:
-   - Switch to PostgreSQL for production
-   - Set up database backups
+1. Fork/Clone this repository
+2. Sign up at [Render.com](https://render.com)
+3. Create PostgreSQL database
+4. Create Web Service from GitHub repo
+5. Set environment variables (see DEPLOYMENT_GUIDE.md)
+6. Deploy! 🎉
 
-3. **Static Files**:
-   - Run `python manage.py collectstatic`
-   - Configure static file serving (Nginx/Apache)
+### Deployment Files Included
 
-4. **Environment Variables**:
-   - Use environment variables for sensitive data
-   - Install `python-decouple` for configuration
+- ✅ `Procfile` - Gunicorn web server configuration
+- ✅ `runtime.txt` - Python version specification (3.10.12)
+- ✅ `build.sh` - Automated deployment setup script
+- ✅ `requirements.txt` - All dependencies including production packages
+- ✅ Production-ready `settings.py` with environment variable support
+- ✅ Whitenoise for static file serving
+- ✅ PostgreSQL database support via DATABASE_URL
 
-5. **Email Configuration**:
-   - Set up email backend for notifications
-   - Configure SMTP settings
+### Documentation
+
+- **Full Deployment Guide**: See `DEPLOYMENT_GUIDE.md` for detailed platform-specific instructions
+- **Quick Reference**: See `DEPLOYMENT_CHECKLIST.md` for quick commands and troubleshooting
+- **Environment Variables**: See `.env.example` for configuration template
+
+### Essential Environment Variables
+
+```bash
+SECRET_KEY=<generate-secure-key>
+DEBUG=False
+ALLOWED_HOSTS=your-domain.com
+DATABASE_URL=postgresql://user:pass@host:5432/db
+```
+
+**Need Help?** Check `DEPLOYMENT_GUIDE.md` for complete instructions and troubleshooting.
 
 ## 📝 License
 
