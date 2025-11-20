@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Symptom Checker - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h2 class="text-center mb-4"><i class="bi bi-clipboard2-pulse"></i> Symptom Checker</h2>
+            <p class="text-center text-muted mb-5">Get preliminary guidance on your symptoms and recommended specialists</p>
+            
+            {% if not result %}
+            <!-- Symptom Input Form -->
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Describe Your Symptoms</strong></label>
+                            <textarea name="symptoms" class="form-control" rows="5" required 
+                                placeholder="Describe your symptoms in detail. For example: I have been experiencing fever and headache for the past 2 days..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"><strong>Age</strong></label>
+                                <input type="number" name="age" class="form-control" min="1" max="120" value="25" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"><strong>Gender</strong></label>
+                                <select name="gender" class="form-select" required>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                    <option value="O">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"><strong>Symptom Category</strong></label>
+                                <select name="category" class="form-select">
+                                    {% for value, label in categories %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>Disclaimer:</strong> This symptom checker is for informational purposes only and is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-search"></i> Analyze Symptoms
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <!-- Results -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Analysis Results</h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Concern Level -->
+                    <div class="mb-4">
+                        <h5>Concern Level</h5>
+                        <div class="alert 
+                            {% if result.concern_level == 'mild' %}alert-success
+                            {% elif result.concern_level == 'moderate' %}alert-warning
+                            {% else %}alert-danger{% endif %}">
+                            <h4 class="mb-0">
+                                {% if result.concern_level == 'mild' %}
+                                <i class="bi bi-check-circle"></i> Mild
+                                {% elif result.concern_level == 'moderate' %}
+                                <i class="bi bi-exclamation-triangle"></i> Moderate
+                                {% else %}
+                                <i class="bi bi-exclamation-octagon"></i> Severe
+                                {% endif %}
+                            </h4>
+                        </div>
+                    </div>
+                    
+                    <!-- Recommended Specialist -->
+                    <div class="mb-4">
+                        <h5><i class="bi bi-person-badge"></i> Recommended Specialist</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h4 class="text-primary">{{ result.recommended_specialist }}</h4>
+                                <a href="{% url 'appointments:doctor_list' %}?specialization={{ result.category }}" class="btn btn-primary mt-2">
+                                    <i class="bi bi-search"></i> Find {{ result.recommended_specialist }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Diet Tips -->
+                    <div class="mb-4">
+                        <h5><i class="bi bi-apple"></i> Diet Recommendations</h5>
+                        <ul class="list-group">
+                            {% for tip in result.diet_tips %}
+                            <li class="list-group-item"><i class="bi bi-check-circle text-success"></i> {{ tip }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Care Instructions -->
+                    <div class="mb-4">
+                        <h5><i class="bi bi-info-circle"></i> Care Instructions</h5>
+                        <ul class="list-group">
+                            {% for instruction in result.care_instructions %}
+                            <li class="list-group-item">
+                                {% if '⚠️' in instruction %}
+                                <i class="bi bi-exclamation-triangle text-danger"></i>
+                                {% else %}
+                                <i class="bi bi-arrow-right text-primary"></i>
+                                {% endif %}
+                                {{ instruction }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Disclaimer -->
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-shield-exclamation"></i> Important Disclaimer</h5>
+                        <p class="mb-0"><strong>{{ result.disclaimer }}</strong></p>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'appointments:doctor_list' %}" class="btn btn-success btn-lg">
+                            <i class="bi bi-calendar-plus"></i> Book an Appointment
+                        </a>
+                        <a href="{% url 'symptoms:symptom_checker' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Check Another Symptom
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Your Input -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Input</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Symptoms:</strong> {{ result.form_data.symptoms }}</p>
+                    <p><strong>Age:</strong> {{ result.form_data.age }} | <strong>Gender:</strong> {{ result.form_data.gender }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Emergency Section -->
+            <div class="card border-danger mt-4">
+                <div class="card-body bg-danger text-white">
+                    <h5><i class="bi bi-exclamation-triangle-fill"></i> Emergency?</h5>
+                    <p class="mb-2">If you're experiencing a medical emergency, don't use this tool.</p>
+                    <a href="{% url 'hospitals:emergency' %}" class="btn btn-light">
+                        <i class="bi bi-telephone-fill"></i> Get Emergency Help
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px;
+    }
+</style>
+{% endblock %}

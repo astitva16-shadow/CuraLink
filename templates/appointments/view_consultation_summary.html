@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation Summary - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3><i class="bi bi-file-text"></i> Consultation Summary</h3>
+                    <a href="{% url 'appointments:print_consultation_summary' appointment.pk %}" class="btn btn-light" target="_blank">
+                        <i class="bi bi-printer"></i> Print
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Appointment Details -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="mb-3">Appointment Details</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Appointment ID:</strong> #{{ appointment.id }}</p>
+                                    <p><strong>Patient:</strong> {{ appointment.patient.get_full_name }}</p>
+                                    <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Specialization:</strong> {{ appointment.doctor.get_specialization_display }}</p>
+                                    <p><strong>Date:</strong> {{ appointment.appointment_date|date:"d M, Y" }}</p>
+                                    <p><strong>Time:</strong> {{ appointment.appointment_time|time:"h:i A" }}</p>
+                                </div>
+                            </div>
+                            <p><strong>Symptoms Reported:</strong> {{ appointment.symptoms }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Diagnosis -->
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="bi bi-clipboard-pulse"></i> Diagnosis</h5>
+                        <p class="ms-3">{{ summary.diagnosis }}</p>
+                    </div>
+                    
+                    <!-- Prescribed Medicines -->
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="bi bi-capsule"></i> Prescribed Medicines</h5>
+                        <div class="ms-3" style="white-space: pre-line;">{{ summary.prescribed_medicines }}</div>
+                    </div>
+                    
+                    <!-- Instructions -->
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="bi bi-info-circle"></i> Instructions</h5>
+                        <div class="ms-3" style="white-space: pre-line;">{{ summary.instructions }}</div>
+                    </div>
+                    
+                    <!-- Diet Recommendations -->
+                    {% if summary.diet_recommendations %}
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="bi bi-apple"></i> Diet Recommendations</h5>
+                        <div class="ms-3" style="white-space: pre-line;">{{ summary.diet_recommendations }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Follow-up -->
+                    {% if summary.follow_up_required %}
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-calendar-event"></i> Follow-up Required</h6>
+                        {% if summary.follow_up_date %}
+                        <p class="mb-0">Please schedule a follow-up appointment on or before: <strong>{{ summary.follow_up_date|date:"d M, Y" }}</strong></p>
+                        {% else %}
+                        <p class="mb-0">Please schedule a follow-up appointment as advised by your doctor.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Footer -->
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted mb-1"><small>Consultation Date: {{ summary.created_at|date:"d M, Y h:i A" }}</small></p>
+                        <p class="text-muted"><small>This is a digitally generated consultation summary from CuraLink.</small></p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'appointments:my_appointments' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Appointments
+                        </a>
+                        <a href="{% url 'appointments:print_consultation_summary' appointment.pk %}" class="btn btn-primary" target="_blank">
+                            <i class="bi bi-printer"></i> Print Summary
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

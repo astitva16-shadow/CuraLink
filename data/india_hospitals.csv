@@ -1,0 +1,51 @@
+facility_name,state_name,district_name,facility_type,address,latitude,longitude,contact,has_emergency
+AIIMS Delhi,Delhi,New Delhi,Tertiary Care Hospital,Ansari Nagar East New Delhi,28.5672,77.2100,011-26588500,True
+Safdarjung Hospital,Delhi,New Delhi,State Hospital,Safdarjung Enclave New Delhi,28.5677,77.2075,011-26165060,True
+Ram Manohar Lohia Hospital,Delhi,Central Delhi,State Hospital,Baba Kharak Singh Marg New Delhi,28.6261,77.2037,011-23365525,True
+GTB Hospital,Delhi,East Delhi,State Hospital,Dilshad Garden Delhi,28.6800,77.3160,011-22582000,True
+Lady Hardinge Medical College,Delhi,Central Delhi,State Hospital,Shaheed Bhagat Singh Marg New Delhi,28.6328,77.2180,011-23408140,True
+Apollo Hospital Chennai,Tamil Nadu,Chennai,Private Hospital,Greams Road Chennai,13.0605,80.2540,044-28296000,True
+Christian Medical College Vellore,Tamil Nadu,Vellore,Tertiary Care Hospital,Ida Scudder Road Vellore,12.9254,79.1325,0416-2282020,True
+Stanley Medical College,Tamil Nadu,Chennai,State Hospital,Old Jail Road Chennai,13.0918,80.2786,044-25281351,True
+Rajiv Gandhi Government General Hospital,Tamil Nadu,Chennai,State Hospital,Park Town Chennai,13.0878,80.2785,044-25305000,True
+Government Medical College Thiruvananthapuram,Kerala,Thiruvananthapuram,State Hospital,Medical College Thiruvananthapuram,8.5132,76.9496,0471-2443152,True
+Sree Chitra Tirunal Institute Thiruvananthapuram,Kerala,Thiruvananthapuram,Tertiary Care Hospital,Medical College Campus Thiruvananthapuram,8.5157,76.9477,0471-2524266,True
+Fortis Hospital Bangalore,Karnataka,Bangalore Urban,Private Hospital,Bannerghatta Road Bangalore,12.8898,77.5991,080-66214444,True
+St Johns Medical College,Karnataka,Bangalore Urban,Tertiary Care Hospital,Sarjapur Road Bangalore,12.9323,77.6321,080-49467000,True
+Victoria Hospital Bangalore,Karnataka,Bangalore Urban,State Hospital,KR Market Bangalore,12.9614,77.5766,080-26701150,True
+NIMHANS Bangalore,Karnataka,Bangalore Urban,Tertiary Care Hospital,Hosur Road Bangalore,12.9433,77.5961,080-26995000,True
+PGI Chandigarh,Chandigarh,Chandigarh,Tertiary Care Hospital,Sector 12 Chandigarh,30.7640,76.7750,0172-2747585,True
+Government Medical College Chandigarh,Chandigarh,Chandigarh,State Hospital,Sector 32 Chandigarh,30.7330,76.7684,0172-2601023,True
+SGPGI Lucknow,Uttar Pradesh,Lucknow,Tertiary Care Hospital,Raebareli Road Lucknow,26.8100,80.9440,0522-2494400,True
+King Georges Medical University,Uttar Pradesh,Lucknow,State Hospital,Chowk Lucknow,26.8467,80.9462,0522-2257450,True
+BHU Hospital Varanasi,Uttar Pradesh,Varanasi,Tertiary Care Hospital,Lanka Varanasi,25.2677,82.9913,0542-2369444,True
+JIPMER Puducherry,Puducherry,Puducherry,Tertiary Care Hospital,Dhanvantari Nagar Puducherry,11.9480,79.7714,0413-2296000,True
+SCB Medical College Cuttack,Odisha,Cuttack,State Hospital,Mangalabag Cuttack,20.4625,85.8830,0671-2322444,True
+Capital Hospital Bhubaneswar,Odisha,Khordha,State Hospital,Unit 6 Bhubaneswar,20.2961,85.8245,0674-2391994,True
+Medical College Kolkata,West Bengal,Kolkata,State Hospital,88 College Street Kolkata,22.5780,88.3591,033-22416161,True
+SSKM Hospital Kolkata,West Bengal,Kolkata,State Hospital,244 AJC Bose Road Kolkata,22.5484,88.3550,033-22231100,True
+RG Kar Medical College,West Bengal,Kolkata,State Hospital,1 Khudiram Bose Sarani Kolkata,22.6160,88.3790,033-25571152,True
+IPGMER Hospital Kolkata,West Bengal,Kolkata,State Hospital,244 AJC Bose Road Kolkata,22.5484,88.3550,033-22231100,True
+Tata Memorial Hospital Mumbai,Maharashtra,Mumbai,Tertiary Care Hospital,Parel Mumbai,19.0176,72.8561,022-24177000,True
+KEM Hospital Mumbai,Maharashtra,Mumbai,State Hospital,Parel Mumbai,19.0179,72.8434,022-24107000,True
+Sion Hospital Mumbai,Maharashtra,Mumbai,State Hospital,Sion Mumbai,19.0433,72.8627,022-24076381,True
+Grant Medical College Mumbai,Maharashtra,Mumbai,State Hospital,JJ Hospital Mumbai,18.9634,72.8322,022-23735555,True
+BYL Nair Hospital Mumbai,Maharashtra,Mumbai,State Hospital,Mumbai Central,18.9667,72.8185,022-23027643,True
+Pune Civil Hospital,Maharashtra,Pune,District Hospital,Sassoon Road Pune,18.5204,73.8567,020-26126348,True
+PGIMER Chandigarh Extension,Chandigarh,Chandigarh,Tertiary Care Hospital,Sector 12 Extension Chandigarh,30.7645,76.7755,0172-2756565,True
+Gandhi Hospital Hyderabad,Telangana,Hyderabad,State Hospital,Musheerabad Hyderabad,17.4340,78.4900,040-27560505,True
+Osmania General Hospital,Telangana,Hyderabad,State Hospital,Afzal Gunj Hyderabad,17.3707,78.4782,040-24600146,True
+NIMS Hyderabad,Telangana,Hyderabad,Tertiary Care Hospital,Punjagutta Hyderabad,17.4239,78.4489,040-23489000,True
+Care Hospital Hyderabad,Telangana,Hyderabad,Private Hospital,Banjara Hills Hyderabad,17.4184,78.4467,040-61654444,True
+Gandhi Medical College Bhopal,Madhya Pradesh,Bhopal,State Hospital,Sultania Road Bhopal,23.2599,77.4126,0755-2740040,True
+AIIMS Bhopal,Madhya Pradesh,Bhopal,Tertiary Care Hospital,Saket Nagar Bhopal,23.2411,77.4098,0755-2672341,True
+SMS Hospital Jaipur,Rajasthan,Jaipur,State Hospital,JLN Marg Jaipur,26.9124,75.7873,0141-2560291,True
+AIIMS Jodhpur,Rajasthan,Jodhpur,Tertiary Care Hospital,Basni Phase 2 Jodhpur,26.2389,73.0243,0291-2740444,True
+Civil Hospital Ahmedabad,Gujarat,Ahmedabad,State Hospital,Asarwa Ahmedabad,23.0417,72.6005,079-22680074,True
+BJ Medical College Ahmedabad,Gujarat,Ahmedabad,State Hospital,Civil Hospital Campus Ahmedabad,23.0411,72.6007,079-22682101,True
+GMERS Medical College Surat,Gujarat,Surat,State Hospital,Majura Gate Surat,21.1702,72.8311,0261-2463444,True
+Government Medical College Srinagar,Jammu and Kashmir,Srinagar,State Hospital,Karan Nagar Srinagar,34.0836,74.8150,0194-2503227,True
+SKIMS Srinagar,Jammu and Kashmir,Srinagar,Tertiary Care Hospital,Soura Srinagar,34.1100,74.8450,0194-2401013,True
+GMCH Chandigarh,Chandigarh,Chandigarh,State Hospital,Sector 32 Chandigarh,30.7330,76.7684,0172-2601023,True
+PGIMER Satellite,Chandigarh,Chandigarh,Tertiary Care Hospital,Sector 12B Chandigarh,30.7642,76.7752,0172-2747686,True
+Government Hospital Shimla,Himachal Pradesh,Shimla,District Hospital,The Mall Shimla,31.1048,77.1734,0177-2652320,True

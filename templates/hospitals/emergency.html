@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Emergency Services - CuraLink{% endblock %}
+
+{% block content %}
+<div class="bg-danger text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-3 mb-3">
+            <i class="bi bi-exclamation-triangle-fill"></i> Emergency Services
+        </h1>
+        <p class="lead">If you are experiencing severe or life-threatening symptoms, seek help immediately</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Emergency Numbers -->
+    <div class="row mb-5">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-lg border-danger">
+                <div class="card-body p-5 text-center">
+                    <h3 class="mb-4">Emergency Contact Numbers</h3>
+                    <div class="mb-4">
+                        <h2 class="text-danger"><i class="bi bi-ambulance"></i> Ambulance</h2>
+                        <a href="tel:{{ ambulance_number }}" class="btn btn-danger btn-lg">
+                            <i class="bi bi-telephone-fill"></i> Call {{ ambulance_number }}
+                        </a>
+                    </div>
+                    <div>
+                        <h2 class="text-danger"><i class="bi bi-telephone-fill"></i> Emergency Helpline</h2>
+                        <a href="tel:{{ emergency_number }}" class="btn btn-danger btn-lg">
+                            <i class="bi bi-telephone-fill"></i> Call {{ emergency_number }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- When to Call Emergency -->
+    <div class="alert alert-warning mb-5">
+        <h4><i class="bi bi-info-circle"></i> When to Call Emergency Services</h4>
+        <ul>
+            <li>Chest pain or pressure</li>
+            <li>Difficulty breathing or shortness of breath</li>
+            <li>Sudden severe headache or confusion</li>
+            <li>Severe bleeding or trauma</li>
+            <li>Loss of consciousness</li>
+            <li>Severe abdominal pain</li>
+            <li>Signs of stroke (facial drooping, arm weakness, speech difficulty)</li>
+            <li>Severe allergic reactions</li>
+        </ul>
+    </div>
+    
+    <!-- Emergency Hospitals -->
+    <h2 class="mb-4"><i class="bi bi-hospital"></i> Hospitals with Emergency Services</h2>
+    <div class="row g-4">
+        {% for hospital in emergency_hospitals %}
+        <div class="col-md-6">
+            <div class="card h-100 border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title">{{ hospital.name }}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-geo-alt"></i> {{ hospital.city }}
+                            </p>
+                        </div>
+                        <span class="badge bg-danger">Emergency</span>
+                    </div>
+                    <p class="mb-2">{{ hospital.address }}</p>
+                    <p class="mb-2">
+                        <strong><i class="bi bi-telephone"></i> {{ hospital.contact_number }}</strong>
+                    </p>
+                    {% if hospital.has_ambulance %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-truck"></i> Ambulance Available
+                    </span>
+                    {% endif %}
+                    <div class="mt-3">
+                        <a href="tel:{{ hospital.contact_number }}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-telephone-fill"></i> Call Now
+                        </a>
+                        <a href="{% url 'hospitals:hospital_detail' hospital.pk %}" class="btn btn-outline-primary btn-sm">
+                            Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No emergency hospitals found in the database.</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- First Aid Tips -->
+    <div class="card mt-5">
+        <div class="card-header bg-primary text-white">
+            <h4><i class="bi bi-bandaid"></i> Basic First Aid Tips</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>For Heavy Bleeding:</h5>
+                    <ul>
+                        <li>Apply direct pressure to the wound</li>
+                        <li>Keep the injured area elevated</li>
+                        <li>Do not remove any embedded objects</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>For Burns:</h5>
+                    <ul>
+                        <li>Cool the burn with running water for 10-20 minutes</li>
+                        <li>Do not apply ice directly</li>
+                        <li>Cover with a clean, dry cloth</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>For Choking:</h5>
+                    <ul>
+                        <li>Encourage coughing</li>
+                        <li>Perform back blows and abdominal thrusts if needed</li>
+                        <li>Call for emergency help if unable to clear airway</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>For Suspected Heart Attack:</h5>
+                    <ul>
+                        <li>Call emergency services immediately</li>
+                        <li>Have the person sit or lie down</li>
+                        <li>Loosen any tight clothing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

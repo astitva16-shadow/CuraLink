@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="bi bi-person-circle"></i> My Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Username:</strong></div>
+                        <div class="col-md-8">{{ user.username }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Full Name:</strong></div>
+                        <div class="col-md-8">{{ user.get_full_name|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Email:</strong></div>
+                        <div class="col-md-8">{{ user.email|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Phone:</strong></div>
+                        <div class="col-md-8">{{ user.phone|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Role:</strong></div>
+                        <div class="col-md-8">
+                            <span class="badge {% if user.role == 'doctor' %}bg-success{% else %}bg-primary{% endif %}">
+                                {{ user.get_role_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    {% if user.role == 'patient' and profile_data %}
+                    <h5 class="mb-3">Patient Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Age:</strong></div>
+                        <div class="col-md-8">{{ profile_data.age|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Gender:</strong></div>
+                        <div class="col-md-8">{{ profile_data.get_gender_display|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Address:</strong></div>
+                        <div class="col-md-8">{{ profile_data.address|default:"Not provided" }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.role == 'doctor' and profile_data %}
+                    <h5 class="mb-3">Professional Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Specialization:</strong></div>
+                        <div class="col-md-8">{{ profile_data.get_specialization_display }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Qualification:</strong></div>
+                        <div class="col-md-8">{{ profile_data.qualification }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Experience:</strong></div>
+                        <div class="col-md-8">{{ profile_data.experience_years }} years</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Clinic/Hospital:</strong></div>
+                        <div class="col-md-8">{{ profile_data.clinic_hospital }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Consultation Fee:</strong></div>
+                        <div class="col-md-8">₹{{ profile_data.consultation_fee }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Rating:</strong></div>
+                        <div class="col-md-8">
+                            <i class="bi bi-star-fill text-warning"></i> {{ profile_data.rating }}
+                        </div>
+                    </div>
+                    {% if profile_data.bio %}
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Bio:</strong></div>
+                        <div class="col-md-8">{{ profile_data.bio }}</div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'accounts:profile_update' %}" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> Update Profile
+                        </a>
+                        {% if user.role == 'patient' %}
+                        <a href="{% url 'appointments:my_appointments' %}" class="btn btn-secondary">
+                            <i class="bi bi-calendar-check"></i> My Appointments
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Doctors - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4 fade-in"><i class="bi bi-people"></i> Find Doctors</h2>
+    
+    <!-- Filter -->
+    <div class="card mb-4 scale-in">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">Specialization</label>
+                    <select name="specialization" class="form-select">
+                        <option value="">All Specializations</option>
+                        {% for value, label in specializations %}
+                        <option value="{{ value }}" {% if value == selected_specialization %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Doctor Cards -->
+    <div class="row g-4">
+        {% for doctor in page_obj %}
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Dr. {{ doctor.user.get_full_name }}</h5>
+                    <p class="text-muted mb-2">{{ doctor.get_specialization_display }}</p>
+                    <p class="mb-1">
+                        <i class="bi bi-hospital"></i> {{ doctor.clinic_hospital }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-award"></i> {{ doctor.qualification }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-briefcase"></i> {{ doctor.experience_years }} years experience
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-star-fill text-warning"></i> {{ doctor.rating }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>₹{{ doctor.consultation_fee }}</strong> consultation fee
+                    </p>
+                    {% if doctor.is_available %}
+                    <span class="badge bg-success mb-2">Available</span>
+                    {% else %}
+                    <span class="badge bg-secondary mb-2">Unavailable</span>
+                    {% endif %}
+                    <div class="mt-3">
+                        <a href="{% url 'appointments:doctor_detail' doctor.pk %}" class="btn btn-outline-primary btn-sm">
+                            View Profile
+                        </a>
+                        {% if user.is_authenticated and user.role == 'patient' %}
+                        <a href="{% url 'appointments:book_appointment_doctor' doctor.pk %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-calendar-plus"></i> Book
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No doctors found matching your criteria.</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&specialization={{ selected_specialization }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&specialization={{ selected_specialization }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&specialization={{ selected_specialization }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CuraLink PWA Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover { background: #0284c7; }
+        .detail { font-family: monospace; background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 CuraLink PWA Test Page</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="runTests()">Run PWA Tests</button>
+    <button onclick="checkServiceWorker()">Check Service Worker</button>
+    <button onclick="checkCache()">Check Cache</button>
+    
+    <script>
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function runTests() {
+            document.getElementById('results').innerHTML = '';
+            addResult('🧪 Running PWA Tests...', 'info');
+            
+            // Test 1: Service Worker Support
+            if ('serviceWorker' in navigator) {
+                addResult('✅ Service Worker API supported', 'success');
+            } else {
+                addResult('❌ Service Worker API not supported', 'error');
+            }
+            
+            // Test 2: Manifest
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            if (manifestLink) {
+                addResult(`✅ Manifest linked: ${manifestLink.href}`, 'success');
+                fetch(manifestLink.href)
+                    .then(r => r.json())
+                    .then(m => {
+                        addResult(`✅ Manifest loaded: ${m.name}`, 'success');
+                        addResult(`<div class="detail">Start URL: ${m.start_url}<br>Display: ${m.display}<br>Theme: ${m.theme_color}</div>`, 'info');
+                    })
+                    .catch(e => addResult(`❌ Manifest error: ${e.message}`, 'error'));
+            } else {
+                addResult('❌ Manifest not linked', 'error');
+            }
+            
+            // Test 3: Icons
+            const icons = document.querySelectorAll('link[rel*="icon"]');
+            if (icons.length > 0) {
+                addResult(`✅ ${icons.length} icon(s) found`, 'success');
+            } else {
+                addResult('⚠️ No icons found', 'error');
+            }
+            
+            // Test 4: HTTPS or localhost
+            if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                addResult('✅ Running on secure context (HTTPS or localhost)', 'success');
+            } else {
+                addResult('⚠️ Not on HTTPS - PWA features limited', 'error');
+            }
+            
+            // Test 5: Display mode
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                addResult('✅ Running as installed PWA!', 'success');
+            } else {
+                addResult('ℹ️ Running in browser (not installed)', 'info');
+            }
+            
+            // Test 6: Install prompt
+            addResult('ℹ️ To install: Look for "Install" button in browser address bar', 'info');
+        }
+        
+        function checkServiceWorker() {
+            document.getElementById('results').innerHTML = '';
+            addResult('🔍 Checking Service Worker...', 'info');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        registrations.forEach(reg => {
+                            addResult(`✅ Service Worker registered at: ${reg.scope}`, 'success');
+                            addResult(`<div class="detail">State: ${reg.active ? reg.active.state : 'N/A'}<br>Script: ${reg.active ? reg.active.scriptURL : 'N/A'}</div>`, 'info');
+                        });
+                    } else {
+                        addResult('❌ No service worker registered', 'error');
+                    }
+                }).catch(e => {
+                    addResult(`❌ Error: ${e.message}`, 'error');
+                });
+            } else {
+                addResult('❌ Service Worker not supported', 'error');
+            }
+        }
+        
+        function checkCache() {
+            document.getElementById('results').innerHTML = '';
+            addResult('🔍 Checking Cache Storage...', 'info');
+            
+            if ('caches' in window) {
+                caches.keys().then(cacheNames => {
+                    if (cacheNames.length > 0) {
+                        addResult(`✅ ${cacheNames.length} cache(s) found`, 'success');
+                        cacheNames.forEach(name => {
+                            caches.open(name).then(cache => {
+                                cache.keys().then(keys => {
+                                    addResult(`<div class="detail">Cache: ${name}<br>Items: ${keys.length}</div>`, 'info');
+                                });
+                            });
+                        });
+                    } else {
+                        addResult('ℹ️ No caches yet (visit some pages first)', 'info');
+                    }
+                });
+            } else {
+                addResult('❌ Cache API not supported', 'error');
+            }
+        }
+        
+        // Auto-run tests on load
+        window.onload = runTests;
+    </script>
+</body>
+</html>

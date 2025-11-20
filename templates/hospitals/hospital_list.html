@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+
+{% block title %}Hospitals - CuraLink{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<style>
+    .hospital-marker {
+        background-color: #dc3545;
+        border: 2px solid white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+    }
+    .user-marker {
+        background-color: #0d6efd;
+        border: 3px solid white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(13, 110, 253, 0.8); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4"><i class="bi bi-hospital"></i> Find Hospitals</h2>
+    
+    <!-- Dark Theme Toggle -->
+    <div class="d-flex justify-content-end mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="darkModeToggle" style="width: 50px; height: 25px; cursor: pointer;">
+            <label class="form-check-label ms-2" for="darkModeToggle" style="cursor: pointer;">
+                <i class="bi bi-moon-stars-fill"></i> Dark Mode
+            </label>
+        </div>
+    </div>
+
+    <!-- GPS Location Buttons -->
+    <div class="card mb-4 location-card">
+        <div class="card-body text-center">
+            <h5 class="card-title"><i class="bi bi-map-fill text-primary"></i> Interactive Hospital Map Finder</h5>
+            <p class="text-muted mb-4">Choose your preferred search mode</p>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="map-option-card">
+                        <i class="bi bi-geo-alt-fill text-info" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2">Nearby Hospitals</h6>
+                        <p class="text-muted small">Find hospitals within 100 km of your location</p>
+                        <button id="findNearbyBtn" class="btn btn-success btn-lg w-100 animated-btn">
+                            <i class="bi bi-crosshair"></i> Find Nearby (100 km)
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="map-option-card">
+                        <i class="bi bi-globe-asia-australia text-danger" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2">All India</h6>
+                        <p class="text-muted small">View all hospitals across India on map</p>
+                        <button id="showAllIndiaBtn" class="btn btn-primary btn-lg w-100 animated-btn">
+                            <i class="bi bi-map"></i> Show All India Hospitals
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="locationStatus" class="mt-4"></div>
+        </div>
+    </div>
+    
+    <!-- Map Container -->
+    <div id="mapContainer" class="card mb-4" style="display: none;">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-map"></i> Interactive Map View</h5>
+        </div>
+        <div class="card-body p-0">
+            <div id="hospitalMap" style="height: 500px; width: 100%;"></div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted"><i class="bi bi-info-circle"></i> Blue marker = Your location | Red markers = Hospitals</span>
+                <button id="closeMapBtn" class="btn btn-sm btn-secondary">Close Map</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">City</label>
+                    <select name="city" class="form-select">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                        <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Emergency Services</label>
+                    <select name="emergency" class="form-select">
+                        <option value="">All Hospitals</option>
+                        <option value="true" {% if emergency_only %}selected{% endif %}>Emergency Only</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Hospital List -->
+    <div class="row g-4">
+        {% for hospital in page_obj %}
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ hospital.name }}</h5>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ hospital.city }}
+                    </p>
+                    {% if hospital.has_emergency %}
+                    <span class="badge bg-danger mb-2">
+                        <i class="bi bi-exclamation-triangle"></i> Emergency Available
+                    </span>
+                    {% endif %}
+                    {% if hospital.has_ambulance %}
+                    <span class="badge bg-warning text-dark mb-2">
+                        <i class="bi bi-truck"></i> Ambulance
+                    </span>
+                    {% endif %}
+                    <p class="card-text">{{ hospital.address|truncatewords:10 }}</p>
+                    <p class="mb-2">
+                        <i class="bi bi-telephone"></i> {{ hospital.contact_number }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-star-fill text-warning"></i> {{ hospital.rating }}
+                    </p>
+                    <a href="{% url 'hospitals:hospital_detail' hospital.pk %}" class="btn btn-primary btn-sm">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No hospitals found matching your criteria.</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&city={{ selected_city }}&emergency={{ emergency_only }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&city={{ selected_city }}&emergency={{ emergency_only }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&city={{ selected_city }}&emergency={{ emergency_only }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<script>
+let hospitalMap = null;
+let mapMarkers = [];
+let userLocation = null;
+
+function showAllIndiaHospitals() {
+    const statusDiv = document.getElementById('locationStatus');
+    const mapContainer = document.getElementById('mapContainer');
+    
+    statusDiv.innerHTML = '<div class="alert alert-info fade-in-up"><span class="spinner me-2"></span>Loading all hospitals across India...</div>';
+    
+    // Fetch all hospitals without location
+    fetch('/hospitals/nearby/?lat=20.5937&lon=78.9629&radius=5000')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.hospitals.length > 0) {
+                statusDiv.innerHTML = `<div class="alert alert-success fade-in-up"><i class="bi bi-check-circle"></i> Showing ${data.count} hospital(s) across India</div>`;
+                
+                // Show map without user location (center of India)
+                showMap(null, null, data.hospitals, true);
+                
+                // Display hospital cards
+                const hospitalListDiv = document.querySelector('.row.g-4');
+                hospitalListDiv.innerHTML = '';
+                
+                data.hospitals.forEach(hospital => {
+                    const hospitalCard = createHospitalCard(hospital, false);
+                    hospitalListDiv.insertAdjacentHTML('beforeend', hospitalCard);
+                });
+                
+                // Hide pagination
+                const pagination = document.querySelector('nav');
+                if (pagination) pagination.style.display = 'none';
+            } else {
+                statusDiv.innerHTML = '<div class="alert alert-warning fade-in-up"><i class="bi bi-exclamation-triangle"></i> No hospitals found in database</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            statusDiv.innerHTML = '<div class="alert alert-danger fade-in-up"><i class="bi bi-x-circle"></i> Error loading hospitals. Please try again.</div>';
+        });
+}
+
+function createHospitalCard(hospital, showDistance = true) {
+    return `
+        <div class="col-md-4 fade-in-up">
+            <div class="card h-100 ${showDistance ? 'border-success' : ''}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">${hospital.name}</h5>
+                        ${showDistance ? `<span class="badge bg-success">${hospital.distance} km</span>` : ''}
+                    </div>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-geo-alt"></i> ${hospital.city}, ${hospital.state}
+                    </p>
+                    ${hospital.has_emergency ? '<span class="badge bg-danger mb-2"><i class="bi bi-exclamation-triangle"></i> Emergency</span>' : ''}
+                    ${hospital.has_ambulance ? '<span class="badge bg-warning text-dark mb-2"><i class="bi bi-truck"></i> Ambulance</span>' : ''}
+                    <p class="card-text">${hospital.address}</p>
+                    <p class="mb-2">
+                        <i class="bi bi-telephone"></i> ${hospital.contact_number}
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-star-fill text-warning"></i> ${hospital.rating}
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-hospital"></i> Beds: ${hospital.beds_available}
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="/hospitals/${hospital.id}/" class="btn btn-primary btn-sm animated-btn">
+                            View Details
+                        </a>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}" 
+                           target="_blank" class="btn btn-success btn-sm animated-btn">
+                            <i class="bi bi-map"></i> Directions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showMap(userLat, userLon, hospitals, isAllIndia = false) {
+    const mapContainer = document.getElementById('mapContainer');
+    const mapDiv = document.getElementById('hospitalMap');
+    
+    // Show map container
+    mapContainer.style.display = 'block';
+    
+    // Initialize map if not already done
+    if (!hospitalMap) {
+        const centerLat = isAllIndia ? 20.5937 : userLat;
+        const centerLon = isAllIndia ? 78.9629 : userLon;
+        const zoomLevel = isAllIndia ? 5 : 10;
+        
+        hospitalMap = L.map('hospitalMap').setView([centerLat, centerLon], zoomLevel);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(hospitalMap);
+    } else {
+        // Clear existing markers
+        mapMarkers.forEach(marker => hospitalMap.removeLayer(marker));
+        mapMarkers = [];
+        
+        if (isAllIndia) {
+            hospitalMap.setView([20.5937, 78.9629], 5);
+        } else {
+            hospitalMap.setView([userLat, userLon], 10);
+        }
+    }
+    
+    // Add user location marker only if not showing all India
+    if (!isAllIndia && userLat && userLon) {
+        const userIcon = L.divIcon({
+            className: 'user-marker',
+            html: '<div style="width: 20px; height: 20px; background: #0d6efd; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 15px rgba(13, 110, 253, 0.7);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+        
+        const userMarker = L.marker([userLat, userLon], { icon: userIcon }).addTo(hospitalMap);
+        userMarker.bindPopup('<b>📍 Your Location</b><br>Current position').openPopup();
+        mapMarkers.push(userMarker);
+        userLocation = { lat: userLat, lon: userLon };
+        
+        // Draw 100 km radius circle only for nearby search
+        const radiusCircle = L.circle([userLat, userLon], {
+            color: '#0d6efd',
+            fillColor: '#0d6efd',
+            fillOpacity: 0.1,
+            radius: 100000 // 100 km in meters
+        }).addTo(hospitalMap);
+        mapMarkers.push(radiusCircle);
+    }
+    
+    // Add hospital markers
+    hospitals.forEach((hospital, index) => {
+        const hospitalIcon = L.divIcon({
+            className: 'hospital-marker',
+            html: `<div style="width: 30px; height: 30px; background: ${hospital.has_emergency ? '#dc3545' : '#ffc107'}; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🏥</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15]
+        });
+        
+        const marker = L.marker([hospital.latitude, hospital.longitude], { icon: hospitalIcon })
+            .addTo(hospitalMap);
+        
+        // Create popup content
+        const popupContent = `
+            <div style="min-width: 200px;">
+                <h6><b>${hospital.name}</b></h6>
+                <p class="mb-1"><small><i class="bi bi-geo-alt"></i> ${hospital.address}</small></p>
+                <p class="mb-1"><small><i class="bi bi-telephone"></i> ${hospital.contact_number}</small></p>
+                <p class="mb-1"><small><b>Distance:</b> ${hospital.distance} km</small></p>
+                ${hospital.has_emergency ? '<span class="badge bg-danger mb-1">Emergency</span>' : ''}
+                ${hospital.has_ambulance ? '<span class="badge bg-warning text-dark mb-1">Ambulance</span>' : ''}
+                <br>
+                <div class="mt-2">
+                    <a href="/hospitals/${hospital.id}/" class="btn btn-sm btn-primary" target="_blank">View Details</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}" 
+                       class="btn btn-sm btn-success" target="_blank">Directions</a>
+                </div>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        mapMarkers.push(marker);
+        
+        // Open popup for nearest hospital
+        if (index === 0) {
+            marker.openPopup();
+        }
+    });
+    
+    // Fit map to show all markers
+    if (!isAllIndia && userLat && userLon) {
+        const bounds = L.latLngBounds([]);
+        bounds.extend([userLat, userLon]);
+        hospitals.forEach(h => bounds.extend([h.latitude, h.longitude]));
+        hospitalMap.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+        // For all India view, just show all hospital markers
+        if (hospitals.length > 0) {
+            const bounds = L.latLngBounds([]);
+            hospitals.forEach(h => bounds.extend([h.latitude, h.longitude]));
+            hospitalMap.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }
+    
+    // Scroll to map
+    setTimeout(() => {
+        mapContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+// Dark Mode Toggle
+const darkModeToggle = document.getElementById('darkModeToggle');
+const savedTheme = localStorage.getItem('theme');
+
+if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.checked = true;
+}
+
+darkModeToggle.addEventListener('change', function() {
+    if (this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+        
+        // Update map tiles for dark mode
+        if (hospitalMap) {
+            hospitalMap.eachLayer(function(layer) {
+                if (layer._url) {
+                    hospitalMap.removeLayer(layer);
+                }
+            });
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                maxZoom: 19
+            }).addTo(hospitalMap);
+        }
+    } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+        
+        // Update map tiles for light mode
+        if (hospitalMap) {
+            hospitalMap.eachLayer(function(layer) {
+                if (layer._url) {
+                    hospitalMap.removeLayer(layer);
+                }
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(hospitalMap);
+        }
+    }
+});
+
+// Close map button
+document.getElementById('closeMapBtn').addEventListener('click', function() {
+    document.getElementById('mapContainer').style.display = 'none';
+});
+
+// All India Hospitals Button
+document.getElementById('showAllIndiaBtn').addEventListener('click', function() {
+    this.innerHTML = '<span class="spinner me-2"></span>Loading...';
+    this.disabled = true;
+    
+    showAllIndiaHospitals();
+    
+    setTimeout(() => {
+        this.innerHTML = '<i class="bi bi-map"></i> Show All India Hospitals';
+        this.disabled = false;
+    }, 1000);
+});
+
+// Nearby Hospitals Button (100 km)
+document.getElementById('findNearbyBtn').addEventListener('click', function() {
+    const btn = this;
+    const statusDiv = document.getElementById('locationStatus');
+    const hospitalListDiv = document.querySelector('.row.g-4');
+    
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+        statusDiv.innerHTML = '<div class="alert alert-danger">Geolocation is not supported by your browser</div>';
+        return;
+    }
+    
+    // Disable button and show loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner me-2"></span>Getting your location...';
+    statusDiv.innerHTML = '<div class="alert alert-info fade-in-up"><i class="bi bi-hourglass-split"></i> Please allow location access...</div>';
+    
+    // Get user's current position
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            statusDiv.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> Location detected! Searching nearby hospitals...</div>';
+            
+            // Fetch nearby hospitals from Django backend
+            fetch(`/hospitals/nearby/?lat=${lat}&lon=${lon}&radius=100`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.hospitals.length > 0) {
+                        statusDiv.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle"></i> Found ${data.count} hospital(s) within ${data.radius_km} km - <a href="#mapContainer" onclick="document.getElementById('mapContainer').scrollIntoView({behavior: 'smooth'});">View on Map</a></div>`;
+                        
+                        // Show map
+                        showMap(lat, lon, data.hospitals);
+                        
+                        // Clear existing hospitals
+                        hospitalListDiv.innerHTML = '';
+                        
+                        // Display nearby hospitals
+                        data.hospitals.forEach(hospital => {
+                            const hospitalCard = createHospitalCard(hospital, true);
+                            hospitalListDiv.insertAdjacentHTML('beforeend', hospitalCard);
+                        });
+                        
+                        // Hide pagination when showing nearby results
+                        const pagination = document.querySelector('nav');
+                        if (pagination) pagination.style.display = 'none';
+                        
+                    } else {
+                        statusDiv.innerHTML = '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> No hospitals found within 100 km of your location</div>';
+                        hospitalListDiv.innerHTML = '<div class="col-12"><div class="alert alert-info">No hospitals with GPS coordinates found in your area. Try using the filters above.</div></div>';
+                    }
+                    
+                    // Re-enable button
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-crosshair"></i> Find Nearby (100 km)';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusDiv.innerHTML = '<div class="alert alert-danger fade-in-up"><i class="bi bi-x-circle"></i> Error fetching nearby hospitals. Please try again.</div>';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-crosshair"></i> Find Nearby (100 km)';
+                });
+        },
+        function(error) {
+            let errorMessage = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = 'Location access denied. Please enable location permissions in your browser.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = 'Location information unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = 'Location request timed out.';
+                    break;
+                default:
+                    errorMessage = 'An unknown error occurred.';
+            }
+            statusDiv.innerHTML = `<div class="alert alert-danger fade-in-up"><i class="bi bi-x-circle"></i> ${errorMessage}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Find Nearby (100 km)';
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+});
+</script>
+
+{% endblock %}

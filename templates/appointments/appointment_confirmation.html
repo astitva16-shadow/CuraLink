@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointment Confirmed - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="text-success mb-3">Appointment Confirmed!</h2>
+                    <p class="lead mb-4">Your appointment has been successfully booked.</p>
+                    
+                    <div class="card bg-light mb-4">
+                        <div class="card-body text-start">
+                            <h5 class="mb-3">Appointment Details</h5>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Appointment ID:</strong></div>
+                                <div class="col-md-8">#{{ appointment.id }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Doctor:</strong></div>
+                                <div class="col-md-8">Dr. {{ appointment.doctor.user.get_full_name }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Specialization:</strong></div>
+                                <div class="col-md-8">{{ appointment.doctor.get_specialization_display }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Date:</strong></div>
+                                <div class="col-md-8">{{ appointment.appointment_date|date:"d M, Y" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Time:</strong></div>
+                                <div class="col-md-8">{{ appointment.appointment_time|time:"h:i A" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Location:</strong></div>
+                                <div class="col-md-8">{{ appointment.doctor.clinic_hospital }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Status:</strong></div>
+                                <div class="col-md-8">
+                                    <span class="badge bg-warning">{{ appointment.get_status_display }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info text-start">
+                        <h6><i class="bi bi-info-circle"></i> Important Instructions:</h6>
+                        <ul class="mb-0">
+                            <li>Please arrive 15 minutes before your appointment time</li>
+                            <li>Bring any previous medical records or test results</li>
+                            <li>Contact the clinic if you need to reschedule</li>
+                            <li>You can view your appointment details anytime from "My Appointments"</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'appointments:my_appointments' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-calendar-check"></i> View My Appointments
+                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-house"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

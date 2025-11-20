@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultation Summary - {{ appointment.patient.get_full_name }}</title>
+    <style>
+        @media print {
+            .no-print { display: none; }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2563eb;
+            margin: 0;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            background-color: #2563eb;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            padding: 5px 0;
+        }
+        .info-item strong {
+            color: #333;
+        }
+        .content {
+            padding-left: 15px;
+            white-space: pre-line;
+        }
+        .alert {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ccc;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .signature {
+            margin-top: 50px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CuraLink</h1>
+        <p>Consultation Summary</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">APPOINTMENT DETAILS</div>
+        <div class="info-grid">
+            <div class="info-item"><strong>Appointment ID:</strong> #{{ appointment.id }}</div>
+            <div class="info-item"><strong>Date:</strong> {{ appointment.appointment_date|date:"d M, Y" }}</div>
+            <div class="info-item"><strong>Patient Name:</strong> {{ appointment.patient.get_full_name }}</div>
+            <div class="info-item"><strong>Time:</strong> {{ appointment.appointment_time|time:"h:i A" }}</div>
+        </div>
+        <div class="info-item"><strong>Symptoms Reported:</strong> {{ appointment.symptoms }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">DOCTOR DETAILS</div>
+        <div class="info-grid">
+            <div class="info-item"><strong>Doctor Name:</strong> Dr. {{ appointment.doctor.user.get_full_name }}</div>
+            <div class="info-item"><strong>Qualification:</strong> {{ appointment.doctor.qualification }}</div>
+            <div class="info-item"><strong>Specialization:</strong> {{ appointment.doctor.get_specialization_display }}</div>
+            <div class="info-item"><strong>Clinic/Hospital:</strong> {{ appointment.doctor.clinic_hospital }}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">DIAGNOSIS</div>
+        <div class="content">{{ summary.diagnosis }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PRESCRIBED MEDICINES</div>
+        <div class="content">{{ summary.prescribed_medicines }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">INSTRUCTIONS</div>
+        <div class="content">{{ summary.instructions }}</div>
+    </div>
+
+    {% if summary.diet_recommendations %}
+    <div class="section">
+        <div class="section-title">DIET RECOMMENDATIONS</div>
+        <div class="content">{{ summary.diet_recommendations }}</div>
+    </div>
+    {% endif %}
+
+    {% if summary.follow_up_required %}
+    <div class="alert">
+        <strong>⚠ FOLLOW-UP REQUIRED</strong><br>
+        {% if summary.follow_up_date %}
+        Please schedule a follow-up appointment on or before: <strong>{{ summary.follow_up_date|date:"d M, Y" }}</strong>
+        {% else %}
+        Please schedule a follow-up appointment as advised.
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="signature">
+        <p>__________________________</p>
+        <p><strong>Dr. {{ appointment.doctor.user.get_full_name }}</strong></p>
+        <p>{{ appointment.doctor.qualification }}</p>
+    </div>
+
+    <div class="footer">
+        <p>Generated on: {{ summary.created_at|date:"d M, Y h:i A" }}</p>
+        <p>This is a digitally generated consultation summary from CuraLink.</p>
+        <p>For any queries, please contact your healthcare provider.</p>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-top: 30px;">
+        <button onclick="window.print()" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">
+            🖨️ Print Summary
+        </button>
+        <button onclick="window.close()" style="padding: 10px 30px; font-size: 16px; cursor: pointer; margin-left: 10px;">
+            Close
+        </button>
+    </div>
+</body>
+</html>

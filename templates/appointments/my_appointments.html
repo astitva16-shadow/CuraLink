@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}My Appointments - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4"><i class="bi bi-calendar-check"></i> My Appointments</h2>
+    
+    <!-- Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <label class="form-label">Filter by Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Appointments</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Appointments List -->
+    {% if appointments %}
+    <div class="row g-4">
+        {% for appointment in appointments %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">
+                            {% if user.role == 'patient' %}
+                            Dr. {{ appointment.doctor.user.get_full_name }}
+                            {% else %}
+                            {{ appointment.patient.get_full_name }}
+                            {% endif %}
+                        </h5>
+                        <span class="badge 
+                            {% if appointment.status == 'pending' %}bg-warning
+                            {% elif appointment.status == 'confirmed' %}bg-info
+                            {% elif appointment.status == 'completed' %}bg-success
+                            {% else %}bg-secondary{% endif %}">
+                            {{ appointment.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    {% if user.role == 'patient' %}
+                    <p class="mb-1 text-muted">{{ appointment.doctor.get_specialization_display }}</p>
+                    <p class="mb-2"><i class="bi bi-hospital"></i> {{ appointment.doctor.clinic_hospital }}</p>
+                    {% endif %}
+                    
+                    <p class="mb-1">
+                        <i class="bi bi-calendar"></i> 
+                        <strong>{{ appointment.appointment_date|date:"d M, Y" }}</strong>
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-clock"></i> 
+                        <strong>{{ appointment.appointment_time|time:"h:i A" }}</strong>
+                    </p>
+                    
+                    <p class="mb-3"><strong>Symptoms:</strong> {{ appointment.symptoms|truncatewords:15 }}</p>
+                    
+                    <div class="btn-group-vertical w-100" role="group">
+                        <a href="{% url 'appointments:appointment_confirmation' appointment.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                        
+                        {% if user.role == 'doctor' %}
+                            {% if appointment.status == 'pending' %}
+                            <form method="post" action="{% url 'appointments:update_appointment_status' appointment.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="confirmed">
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="bi bi-check"></i> Confirm Appointment
+                                </button>
+                            </form>
+                            {% endif %}
+                            {% if appointment.status == 'confirmed' %}
+                            <a href="{% url 'appointments:create_consultation_summary' appointment.pk %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-file-medical"></i> Add Consultation Summary
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if appointment.status == 'completed' %}
+                        <a href="{% url 'appointments:view_consultation_summary' appointment.pk %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-file-text"></i> View Summary
+                        </a>
+                        {% endif %}
+                        
+                        {% if appointment.status not in 'completed,cancelled' %}
+                        <a href="{% url 'appointments:cancel_appointment' appointment.pk %}" class="btn btn-danger btn-sm" 
+                           onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h5><i class="bi bi-info-circle"></i> No appointments found</h5>
+        <p class="mb-0">
+            {% if user.role == 'patient' %}
+            You haven't booked any appointments yet. <a href="{% url 'appointments:doctor_list' %}">Find a doctor</a> to book your first appointment.
+            {% else %}
+            You don't have any appointments yet. Patients will be able to book appointments with you.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

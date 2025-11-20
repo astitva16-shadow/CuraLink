@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Consultation Summary - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="bi bi-file-medical"></i> {% if is_new %}Create{% else %}Update{% endif %} Consultation Summary</h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Appointment Info -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5>Appointment Details</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Patient:</strong> {{ appointment.patient.get_full_name }}</p>
+                                    <p><strong>Date:</strong> {{ appointment.appointment_date|date:"d M, Y" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Symptoms:</strong> {{ appointment.symptoms }}</p>
+                                    <p><strong>Time:</strong> {{ appointment.appointment_time|time:"h:i A" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Diagnosis</strong></label>
+                            {{ form.diagnosis }}
+                            {% if form.diagnosis.errors %}
+                                <div class="text-danger">{{ form.diagnosis.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Prescribed Medicines</strong></label>
+                            {{ form.prescribed_medicines }}
+                            {% if form.prescribed_medicines.errors %}
+                                <div class="text-danger">{{ form.prescribed_medicines.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Include medicine name, dosage, and frequency</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Instructions</strong></label>
+                            {{ form.instructions }}
+                            {% if form.instructions.errors %}
+                                <div class="text-danger">{{ form.instructions.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Instructions for medication and care</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Diet Recommendations (Optional)</strong></label>
+                            {{ form.diet_recommendations }}
+                            {% if form.diet_recommendations.errors %}
+                                <div class="text-danger">{{ form.diet_recommendations.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.follow_up_required }}
+                                    <label class="form-check-label" for="id_follow_up_required">
+                                        Follow-up Required
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Follow-up Date</label>
+                                {{ form.follow_up_date }}
+                                {% if form.follow_up_date.errors %}
+                                    <div class="text-danger">{{ form.follow_up_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check"></i> Save Consultation Summary
+                            </button>
+                            <a href="{% url 'appointments:my_appointments' %}" class="btn btn-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px;
+    }
+</style>
+{% endblock %}

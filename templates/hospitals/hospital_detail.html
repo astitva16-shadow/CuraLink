@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ hospital.name }} - CuraLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="mb-4">{{ hospital.name }}</h2>
+                    
+                    {% if hospital.has_emergency %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Emergency Services Available</strong>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong><i class="bi bi-geo-alt"></i> Address:</strong></div>
+                        <div class="col-md-9">{{ hospital.address }}, {{ hospital.city }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong><i class="bi bi-telephone"></i> Phone:</strong></div>
+                        <div class="col-md-9">
+                            <a href="tel:{{ hospital.contact_number }}">{{ hospital.contact_number }}</a>
+                        </div>
+                    </div>
+                    
+                    {% if hospital.email %}
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong><i class="bi bi-envelope"></i> Email:</strong></div>
+                        <div class="col-md-9">
+                            <a href="mailto:{{ hospital.email }}">{{ hospital.email }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if hospital.website %}
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong><i class="bi bi-globe"></i> Website:</strong></div>
+                        <div class="col-md-9">
+                            <a href="{{ hospital.website }}" target="_blank">{{ hospital.website }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong><i class="bi bi-star-fill text-warning"></i> Rating:</strong></div>
+                        <div class="col-md-9">{{ hospital.rating }} / 5.0</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong><i class="bi bi-hospital"></i> Beds:</strong></div>
+                        <div class="col-md-9">{{ hospital.beds_available }} available</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Services:</strong></div>
+                        <div class="col-md-9">
+                            {% if hospital.has_emergency %}
+                            <span class="badge bg-danger me-2">Emergency</span>
+                            {% endif %}
+                            {% if hospital.has_ambulance %}
+                            <span class="badge bg-warning text-dark">Ambulance</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if hospital.description %}
+                    <hr>
+                    <h5>About</h5>
+                    <p>{{ hospital.description }}</p>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'hospitals:hospital_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                        <a href="tel:{{ hospital.contact_number }}" class="btn btn-primary">
+                            <i class="bi bi-telephone"></i> Call Hospital
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
