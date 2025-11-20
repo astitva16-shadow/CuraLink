@@ -31,10 +31,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     
     # Third-party apps
     'rest_framework',
     'corsheaders',
+    
+    # Allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     
     # Local apps
     'accounts',
@@ -43,6 +50,8 @@ INSTALLED_APPS = [
     'symptoms',
     'api',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'curalink.urls'
@@ -165,6 +175,39 @@ if not DEBUG:
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Django-allauth settings
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_LOGIN_METHODS = ['email', 'username']
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+ACCOUNT_LOGOUT_ON_GET = False
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Google OAuth settings (from environment variables)
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
+            'key': ''
+        }
+    }
+}
 
 # Security settings for production
 if not DEBUG:
