@@ -157,7 +157,9 @@ REST_FRAMEWORK = {
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in debug mode
 if not DEBUG:
-    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+    cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+    if cors_origins:
+        CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',') if origin.strip()]
 
 # Login/Logout URLs
 LOGIN_URL = 'accounts:login'
